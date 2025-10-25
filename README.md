@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+
 # Credexa - Fixed Deposit Banking Application
 
 A comprehensive microservices-based Fixed Deposit banking application built with Spring Boot, MySQL, Kafka, and React.
@@ -8,18 +10,19 @@ This is a **multi-module Maven project** consisting of 6 modules:
 
 ### Modules
 
-| Module | Port | Description | Status |
-|--------|------|-------------|--------|
-| **common-lib** | - | Shared utilities (JWT, DTOs, Encryption, PII Masking) | ✅ Complete |
-| **login-service** | 8081 | Authentication & Authorization | ✅ Complete |
-| **customer-service** | 8083 | Customer Management | 🔄 Pending |
-| **product-pricing-service** | 8082 | Product & Pricing Management | 🔄 Pending |
-| **fd-calculator-service** | 8084 | FD Interest Calculator | 🔄 Pending |
-| **fd-account-service** | 8085 | FD Account Management | 🔄 Pending |
+| Module                      | Port | Description                                           | Status      |
+| --------------------------- | ---- | ----------------------------------------------------- | ----------- |
+| **common-lib**              | -    | Shared utilities (JWT, DTOs, Encryption, PII Masking) | ✅ Complete |
+| **login-service**           | 8081 | Authentication & Authorization                        | ✅ Complete |
+| **customer-service**        | 8083 | Customer Management                                   | 🔄 Pending  |
+| **product-pricing-service** | 8082 | Product & Pricing Management                          | 🔄 Pending  |
+| **fd-calculator-service**   | 8084 | FD Interest Calculator                                | 🔄 Pending  |
+| **fd-account-service**      | 8085 | FD Account Management                                 | 🔄 Pending  |
 
 ## 🚀 Technology Stack
 
 ### Backend
+
 - **Java 17**
 - **Spring Boot 3.5.6**
 - **Spring Security** with JWT
@@ -31,11 +34,13 @@ This is a **multi-module Maven project** consisting of 6 modules:
 - **BCrypt** for password hashing
 
 ### Frontend (Planned)
+
 - **React**
 
 ## 📋 Features
 
 ### Login Service ✅
+
 - ✅ User Registration (username, email, mobile)
 - ✅ JWT Authentication
 - ✅ BCrypt Password Hashing with Salt
@@ -59,13 +64,16 @@ This is a **multi-module Maven project** consisting of 6 modules:
 ## 📦 Installation
 
 ### 1. Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd credexa
 ```
 
 ### 2. Setup MySQL
+
 Create databases for each service:
+
 ```sql
 CREATE DATABASE login_db;
 CREATE DATABASE customer_db;
@@ -75,7 +83,9 @@ CREATE DATABASE fd_account_db;
 ```
 
 ### 3. Configure Database
+
 Update credentials in each service's `application.yml`:
+
 ```yaml
 spring:
   datasource:
@@ -84,6 +94,7 @@ spring:
 ```
 
 ### 4. Build All Modules
+
 ```bash
 mvn clean install
 ```
@@ -91,6 +102,7 @@ mvn clean install
 ## 🏃 Running the Application
 
 ### Option 1: Run All Services (from root)
+
 ```bash
 # Build all modules
 mvn clean install
@@ -104,6 +116,7 @@ cd fd-account-service && mvn spring-boot:run
 ```
 
 ### Option 2: Run Individual Service
+
 ```bash
 cd login-service
 mvn spring-boot:run
@@ -111,17 +124,18 @@ mvn spring-boot:run
 
 ## 🌐 Service URLs
 
-| Service | URL | Swagger UI |
-|---------|-----|------------|
-| Login | http://localhost:8081/api/auth | http://localhost:8081/api/auth/swagger-ui.html |
-| Customer | http://localhost:8083/api/customer | http://localhost:8083/api/customer/swagger-ui.html |
-| Product & Pricing | http://localhost:8082/api/products | http://localhost:8082/api/products/swagger-ui.html |
-| FD Calculator | http://localhost:8084/api/calculator | http://localhost:8084/api/calculator/swagger-ui.html |
-| FD Account | http://localhost:8085/api/fd-accounts | http://localhost:8085/api/fd-accounts/swagger-ui.html |
+| Service           | URL                                   | Swagger UI                                            |
+| ----------------- | ------------------------------------- | ----------------------------------------------------- |
+| Login             | http://localhost:8081/api/auth        | http://localhost:8081/api/auth/swagger-ui.html        |
+| Customer          | http://localhost:8083/api/customer    | http://localhost:8083/api/customer/swagger-ui.html    |
+| Product & Pricing | http://localhost:8082/api/products    | http://localhost:8082/api/products/swagger-ui.html    |
+| FD Calculator     | http://localhost:8084/api/calculator  | http://localhost:8084/api/calculator/swagger-ui.html  |
+| FD Account        | http://localhost:8085/api/fd-accounts | http://localhost:8085/api/fd-accounts/swagger-ui.html |
 
 ## 🔐 Default Credentials
 
 **Admin User (Login Service):**
+
 - Username: `admin`
 - Password: `Admin@123`
 - Email: `admin@credexa.com`
@@ -133,6 +147,7 @@ mvn spring-boot:run
 Each microservice has its own Swagger UI for testing APIs:
 
 ### Login Service
+
 - **Swagger UI:** http://localhost:8081/api/auth/swagger-ui.html
 - **API Docs:** http://localhost:8081/api/auth/api-docs
 
@@ -184,17 +199,20 @@ credexa/
 - **Asynchronous:** Kafka events for notifications
 
 ### Kafka Topics
+
 - `login-events` - Login/logout events
 - (More topics to be added as services are created)
 
 ## 🧪 Testing
 
 ### Run All Tests
+
 ```bash
 mvn test
 ```
 
 ### Run Tests for Specific Service
+
 ```bash
 cd login-service
 mvn test
@@ -215,6 +233,7 @@ mvn test
 ### Common Library Usage
 
 All services can use common utilities:
+
 ```java
 @Autowired
 private JwtUtil jwtUtil;
@@ -229,20 +248,24 @@ private PIIMaskingUtil maskingUtil;
 ## 🐛 Troubleshooting
 
 ### MySQL Connection Issues
+
 - Ensure MySQL is running: `mysql --version`
 - Check credentials in `application.yml`
 - Verify database exists
 
 ### Port Already in Use
+
 - Change port in respective `application.yml`
 - Kill process using port: `netstat -ano | findstr :8081`
 
 ### Kafka Connection Issues
+
 - Kafka is optional for login service
 - Start Zookeeper first, then Kafka
 - Update `bootstrap-servers` in `application.yml`
 
 ### Build Failures
+
 - Clean install: `mvn clean install -U`
 - Check Java version: `java -version`
 - Ensure Java 17 or higher
@@ -281,6 +304,7 @@ Credexa Development Team
 ## 📞 Support
 
 For issues and questions:
+
 - Email: dev@credexa.com
 - GitHub Issues: (Add repository URL)
 
