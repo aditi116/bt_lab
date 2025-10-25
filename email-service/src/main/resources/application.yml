@@ -5,7 +5,11 @@ spring:
   application:
     name: email-service
 
-#azure details
+# Azure Communication Service (disabled by default)
+azure:
+  communication:
+    enabled: false
+    connection-string: ${AZURE_COMMUNICATION_CONNECTION_STRING:}
 
 # Logging
 logging:
