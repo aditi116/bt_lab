@@ -18,8 +18,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const response = await authService.login(credentials);
-    if (response.success) {
-      setUser(response.data.user);
+    console.log('AuthContext login response:', response);
+    if (response.success && response.data) {
+      // The user data is in response.data (which contains user and token)
+      const userData = response.data.user || response.data;
+      console.log('Setting user:', userData);
+      setUser(userData);
     }
     return response;
   };

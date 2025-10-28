@@ -1,5 +1,15 @@
 package com.credexa.email.service;
 
+import java.time.Duration;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
 import com.azure.communication.email.EmailClient;
 import com.azure.communication.email.models.EmailAddress;
 import com.azure.communication.email.models.EmailMessage;
@@ -8,25 +18,21 @@ import com.azure.core.util.polling.PollResponse;
 import com.azure.core.util.polling.SyncPoller;
 import com.credexa.email.dto.EmailRequest;
 import com.credexa.email.dto.EmailResponse;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
-
-import java.time.Duration;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class EmailService {
 
-    private final EmailClient emailClient;
+    @Autowired(required = false)
+    @Nullable
+    private EmailClient emailClient;
     private final TemplateEngine templateEngine;
 
-    @Value("${azure.communication.sender}")
+    @Value("${azure.communication.sender:}")
     private String senderAddress;
 
     /**
@@ -320,6 +326,16 @@ public class EmailService {
      * Helper method to send email via Azure Communication Services
      */
     private EmailResponse sendAzureEmail(EmailMessage emailMessage, String recipient) {
+        if (emailClient == null) {
+            log.warn("EmailClient not configured - email service disabled. Skipping send to {}", recipient);
+            return EmailResponse.builder()
+                    .emailId(null)
+                    .status("DISABLED")
+                    .message("Email service is disabled or not configured")
+                    .recipient(recipient)
+                    .build();
+        }
+
         try {
             SyncPoller<EmailSendResult, EmailSendResult> poller = emailClient.beginSend(emailMessage);
             PollResponse<EmailSendResult> response = poller.waitForCompletion(Duration.ofMinutes(2));
@@ -345,7 +361,12 @@ public class EmailService {
             }
         } catch (Exception e) {
             log.error("Azure email send error for: {}", recipient, e);
-            throw new RuntimeException("Failed to send email via Azure", e);
+            return EmailResponse.builder()
+                    .emailId(null)
+                    .status("FAILED")
+                    .message("Failed to send email: " + e.getMessage())
+                    .recipient(recipient)
+                    .build();
         }
     }
 }

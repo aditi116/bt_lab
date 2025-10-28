@@ -24,7 +24,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateCustomerRequest {
 
-    // userId is NOT needed - it's automatically retrieved from JWT token via login-service
+    // userId - Optional for public registration, ignored when authenticated (retrieved from JWT)
+    private Long userId;
     
     @NotBlank(message = "Full name is required")
     @Size(max = 100, message = "Full name must not exceed 100 characters")

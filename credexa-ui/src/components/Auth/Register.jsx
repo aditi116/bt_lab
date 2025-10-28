@@ -8,8 +8,6 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     email: '',
-    fullName: '',
-    mobile: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -91,22 +89,6 @@ const Register = () => {
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <input
-                id="fullName"
-                name="fullName"
-                type="text"
-                required
-                className="input-field mt-1"
-                placeholder="Enter your full name"
-                value={formData.fullName}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                 Username
               </label>
@@ -134,22 +116,6 @@ const Register = () => {
                 className="input-field mt-1"
                 placeholder="Enter your email"
                 value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="mobile" className="block text-sm font-medium text-gray-700">
-                Mobile Number
-              </label>
-              <input
-                id="mobile"
-                name="mobile"
-                type="tel"
-                required
-                className="input-field mt-1"
-                placeholder="Enter your mobile number"
-                value={formData.mobile}
                 onChange={handleChange}
               />
             </div>

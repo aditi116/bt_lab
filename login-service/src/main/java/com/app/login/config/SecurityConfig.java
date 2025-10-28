@@ -49,6 +49,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/register",
                     "/login",
+                    "/oauth2/**",  // OAuth2/SSO endpoints
                     "/health",
                     "/bank-config",
                     "/validate-token",

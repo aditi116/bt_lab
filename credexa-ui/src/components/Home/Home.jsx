@@ -33,8 +33,8 @@ const Home = () => {
                   </>
                 ) : (
                   <>
-                    <Link to="/register" className="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition shadow-lg">
-                      Open Account Now
+                    <Link to="/customers/create" className="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg font-semibold text-lg transition shadow-lg">
+                      Create Account
                     </Link>
                     <Link to="/login" className="bg-primary-700 hover:bg-primary-800 text-white px-8 py-4 rounded-lg font-semibold text-lg transition border-2 border-white/30">
                       Login

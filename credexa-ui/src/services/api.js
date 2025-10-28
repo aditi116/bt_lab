@@ -11,7 +11,7 @@ const api = axios.create({
 // Service URLs
 export const SERVICES = {
   LOGIN: 'http://localhost:8081/api/auth',
-  CUSTOMER: 'http://localhost:8083/api/customers',
+  CUSTOMER: 'http://localhost:8083/api/customer/customers',
   PRODUCT: 'http://localhost:8084/api/products',
   EMAIL: 'http://localhost:8085/api/emails',
   FD_ACCOUNT: 'http://localhost:8086/api/accounts',

@@ -1,16 +1,26 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import GoogleSignInButton from './GoogleSignInButton';
 
 const Login = () => {
+  const [searchParams] = useSearchParams();
   const [credentials, setCredentials] = useState({
     usernameOrEmailOrMobile: '',
     password: '',
   });
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason === 'idle') {
+      setInfo('You have been logged out due to inactivity.');
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     setCredentials({
@@ -26,12 +36,17 @@ const Login = () => {
 
     try {
       const response = await login(credentials);
+      console.log('Login response:', response);
       if (response.success) {
-        navigate('/dashboard');
+        // Small delay to ensure state is updated
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 100);
       } else {
         setError(response.message || 'Login failed');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.message || 'An error occurred during login');
     } finally {
       setLoading(false);
@@ -61,6 +76,12 @@ const Login = () => {
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {info && (
+            <div className="bg-blue-50 border border-blue-400 text-blue-700 px-4 py-3 rounded relative">
+              {info}
+            </div>
+          )}
+          
           {error && (
             <div className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative">
               {error}
@@ -129,6 +150,24 @@ const Login = () => {
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
+          </div>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with SSO</span>
+            </div>
+          </div>
+
+          {/* Google SSO Button */}
+          <div>
+            <GoogleSignInButton 
+              onError={(errorMsg) => setError(errorMsg)}
+              onSuccess={() => setInfo('Google Sign-In successful!')}
+            />
           </div>
         </form>
 

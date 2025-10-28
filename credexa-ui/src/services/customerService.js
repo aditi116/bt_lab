@@ -31,6 +31,12 @@ const customerService = {
     return response.data;
   },
 
+  // Get 360-degree customer view
+  getCustomer360View: async (id) => {
+    const response = await api.get(`${SERVICES.CUSTOMER}/${id}/360-view`);
+    return response.data;
+  },
+
   // Get all customers (if admin endpoint exists)
   getAllCustomers: async () => {
     const response = await api.get(SERVICES.CUSTOMER);

@@ -8,9 +8,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.app.common.event.AccountCreatedEvent;
 import com.app.fdaccount.dto.AccountResponse;
 import com.app.fdaccount.dto.AccountRoleRequest;
 import com.app.fdaccount.dto.BalanceResponse;
@@ -51,6 +53,7 @@ public class AccountCreationService {
         private final CustomerServiceClient customerServiceClient;
         private final CalculatorServiceClient calculatorServiceClient;
         private final EmailServiceClient emailServiceClient;
+        private final ApplicationEventPublisher eventPublisher;
 
         @Value("${account-number.generator.iban.country-code:IN}")
         private String ibanCountryCode;
@@ -193,7 +196,10 @@ public class AccountCreationService {
                 log.info("✅ Created FD account: {} for customer with principal: {}",
                                 savedAccount.getAccountNumber(), savedAccount.getPrincipalAmount());
 
-                // 10. Send new account email to primary account holder
+                // 10. Publish account created event
+                publishAccountCreatedEvent(savedAccount);
+
+                // 11. Send new account email to primary account holder
                 sendNewAccountEmail(savedAccount, product);
 
                 return mapToAccountResponse(savedAccount);
@@ -473,6 +479,39 @@ public class AccountCreationService {
         }
 
         /**
+         * Publish account created event for event consumption
+         */
+        private void publishAccountCreatedEvent(FdAccount account) {
+                try {
+                        // Find primary account holder
+                        AccountRole primaryRole = account.getRoles().stream()
+                                        .filter(AccountRole::getIsPrimary)
+                                        .findFirst()
+                                        .orElse(account.getRoles().get(0));
+
+                        // Create and publish event
+                        AccountCreatedEvent event = AccountCreatedEvent.builder()
+                                        .accountId(account.getId())
+                                        .accountNumber(account.getAccountNumber())
+                                        .customerId(primaryRole.getCustomerId())
+                                        .customerName(primaryRole.getCustomerName())
+                                        .principalAmount(account.getPrincipalAmount())
+                                        .maturityAmount(account.getMaturityAmount())
+                                        .maturityDate(account.getMaturityDate())
+                                        .productCode(account.getProductCode())
+                                        .termMonths(account.getTermMonths())
+                                        .eventTimestamp(java.time.LocalDateTime.now())
+                                        .build();
+
+                        eventPublisher.publishEvent(event);
+                        log.info("✅ Published AccountCreatedEvent for account: {} (Customer: {})",
+                                        account.getAccountNumber(), primaryRole.getCustomerId());
+                } catch (Exception e) {
+                        log.error("❌ Failed to publish AccountCreatedEvent: {}", e.getMessage(), e);
+                }
+        }
+
+        /**
          * Send new account creation email to primary account holder
          */
         private void sendNewAccountEmail(FdAccount account, ProductDto product) {
@@ -509,8 +548,7 @@ public class AccountCreationService {
 
                         log.info("✅ New account email triggered for: {}", customer.getEmail());
                 } catch (Exception e) {
-                        log.error("❌ Failed to send new account email, but account creation succeeded", e);
-                        // Don't fail the account creation if email fails
+                        log.error("❌ Failed to send new account email: {}", e.getMessage(), e);
                 }
         }
 }

@@ -1,18 +1,20 @@
 package com.app.login.config;
 
+import java.util.HashSet;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
 import com.app.login.entity.BankConfiguration;
 import com.app.login.entity.Role;
 import com.app.login.entity.User;
 import com.app.login.repository.BankConfigurationRepository;
 import com.app.login.repository.RoleRepository;
 import com.app.login.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-
-import java.util.HashSet;
 
 /**
  * Data initializer to create default roles, admin user, and bank configuration
@@ -66,9 +68,6 @@ public class DataInitializer implements CommandLineRunner {
                     .username(adminUsername)
                     .password(passwordEncoder.encode("Admin@123")) // Default password
                     .email("admin@credexa.com")
-                    .mobileNumber("9999999999")
-                    .preferredLanguage("en")
-                    .preferredCurrency("USD")
                     .active(true)
                     .accountLocked(false)
                     .failedLoginAttempts(0)

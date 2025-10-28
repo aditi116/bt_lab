@@ -34,6 +34,8 @@ public class SecurityConfig {
                                                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**",
                                                                 "/swagger-ui.html")
                                                 .permitAll()
+                                                // Allow public customer registration (POST /customers)
+                                                .requestMatchers("/customers").permitAll()
                                                 // Require authentication for all other requests
                                                 .anyRequest().authenticated())
                                 .sessionManagement(session -> session

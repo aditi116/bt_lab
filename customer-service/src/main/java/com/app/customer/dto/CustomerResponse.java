@@ -58,6 +58,18 @@ public class CustomerResponse {
     private LocalDateTime updatedAt;
 
     /**
+     * Mask Aadhar number for PII protection
+     * Format: XXXX-XXXX-1234 (show only last 4 digits)
+     */
+    private static String maskAadhar(String aadhar) {
+        if (aadhar == null || aadhar.length() < 4) {
+            return "XXXX-XXXX-XXXX";
+        }
+        String lastFour = aadhar.substring(aadhar.length() - 4);
+        return "XXXX-XXXX-" + lastFour;
+    }
+
+    /**
      * Convert Customer entity to CustomerResponse DTO
      */
     public static CustomerResponse fromEntity(Customer customer) {
@@ -69,7 +81,7 @@ public class CustomerResponse {
                 .mobileNumber(customer.getMobileNumber())
                 .email(customer.getEmail())
                 .panNumber(customer.getPanNumber())
-                .aadharNumber(customer.getAadharNumber())
+                .aadharNumber(maskAadhar(customer.getAadharNumber())) // ✅ PII Masking
                 .dateOfBirth(customer.getDateOfBirth())
                 .gender(customer.getGender())
                 .classification(customer.getClassification())

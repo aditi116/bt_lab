@@ -28,11 +28,4 @@ public class RegisterRequest {
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
-
-    @Size(min = 10, max = 15, message = "Mobile number should be between 10 and 15 digits")
-    private String mobileNumber;
-
-    private String preferredLanguage = "en";
-    
-    private String preferredCurrency = "USD";
 }

@@ -45,6 +45,30 @@ public class LoginServiceClient {
     }
 
     /**
+     * Get username by user ID from login-service
+     */
+    public String getUsernameByUserId(Long userId) {
+        try {
+            String url = loginServiceUrl + "/user/id/" + userId;
+            log.debug("Calling login-service to get username for userId: {}", userId);
+            
+            ApiResponse response = restTemplate.getForObject(url, ApiResponse.class);
+            
+            if (response != null && response.isSuccess() && response.getData() != null && response.getData().getUsername() != null) {
+                log.debug("Retrieved username: {} for userId: {}", response.getData().getUsername(), userId);
+                return response.getData().getUsername();
+            }
+            
+            log.error("Failed to retrieve username for userId: {}", userId);
+            throw new RuntimeException("Unable to retrieve user information from login-service");
+            
+        } catch (Exception e) {
+            log.error("Error calling login-service for userId: {}", userId, e);
+            throw new RuntimeException("Error communicating with login-service: " + e.getMessage());
+        }
+    }
+
+    /**
      * Inner class for API response wrapper from login-service
      */
     @lombok.Data

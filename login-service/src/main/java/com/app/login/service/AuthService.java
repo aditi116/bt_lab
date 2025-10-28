@@ -87,19 +87,12 @@ public class AuthService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
-        if (request.getMobileNumber() != null &&
-                userRepository.existsByMobileNumber(request.getMobileNumber())) {
-            throw new IllegalArgumentException("Mobile number already exists");
-        }
 
         // Create user
         User user = User.builder()
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword())) // BCrypt hashing
                 .email(request.getEmail())
-                .mobileNumber(request.getMobileNumber())
-                .preferredLanguage(request.getPreferredLanguage())
-                .preferredCurrency(request.getPreferredCurrency())
                 .active(true)
                 .accountLocked(false)
                 .failedLoginAttempts(0)
@@ -131,8 +124,8 @@ public class AuthService {
 
         String identifier = request.getUsernameOrEmailOrMobile();
 
-        // Find user by username, email, or mobile
-        User user = userRepository.findByUsernameOrEmailOrMobileNumber(identifier, identifier, identifier)
+        // Find user by username or email
+        User user = userRepository.findByUsernameOrEmail(identifier, identifier)
                 .orElseThrow(() -> {
                     logAuditEvent(identifier, AuditLog.EventType.LOGIN_FAILURE,
                             false, "User not found", httpRequest);
@@ -191,10 +184,7 @@ public class AuthService {
                 .userId(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
-                .mobileNumber(user.getMobileNumber())
                 .roles(user.getRoles().stream().map(r -> r.getName().name()).collect(Collectors.toSet()))
-                .preferredLanguage(user.getPreferredLanguage())
-                .preferredCurrency(user.getPreferredCurrency())
                 .loginTime(LocalDateTime.now())
                 .expiresIn(jwtExpiration)
                 .build();
@@ -231,6 +221,15 @@ public class AuthService {
         log.info("Retrieving user information for username: {}", username);
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+    }
+
+    /**
+     * Get user by user ID
+     */
+    public User getUserById(Long userId) {
+        log.info("Retrieving user information for userId: {}", userId);
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with ID: " + userId));
     }
 
     /**

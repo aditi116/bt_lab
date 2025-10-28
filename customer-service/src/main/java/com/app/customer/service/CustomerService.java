@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,15 +45,29 @@ public class CustomerService {
             boolean isAdmin) {
         log.info("Creating customer by user: {} (Admin: {})", authenticatedUsername, isAdmin);
 
-        // Get userId from login-service using the authenticated username
-        Long userId = loginServiceClient.getUserIdByUsername(authenticatedUsername);
-        log.info("Retrieved userId: {} for username: {}", userId, authenticatedUsername);
-
-        // Security Check: Regular users can only create their own profile
-        // Check if the authenticated user already has a customer profile
-        if (!isAdmin && customerRepository.existsByUsername(authenticatedUsername)) {
-            throw new DuplicateCustomerException(
-                    "You already have a customer profile. Each user can only have one profile.");
+        Long userId;
+        String username;
+        
+        // Handle public registration vs authenticated creation
+        if (authenticatedUsername == null) {
+            // Public registration - use userId from request and get username from login-service
+            if (request.getUserId() == null) {
+                throw new IllegalArgumentException("UserId is required for public registration");
+            }
+            userId = request.getUserId();
+            username = loginServiceClient.getUsernameByUserId(userId);
+            log.info("Public registration: Retrieved username: {} for userId: {}", username, userId);
+        } else {
+            // Authenticated creation - get userId from login-service using authenticated username
+            userId = loginServiceClient.getUserIdByUsername(authenticatedUsername);
+            username = authenticatedUsername;
+            log.info("Authenticated creation: Retrieved userId: {} for username: {}", userId, username);
+            
+            // Security Check: Regular users can only create their own profile
+            if (!isAdmin && customerRepository.existsByUsername(authenticatedUsername)) {
+                throw new DuplicateCustomerException(
+                        "You already have a customer profile. Each user can only have one profile.");
+            }
         }
 
         // Check for duplicates (using the userId from login-service, not from request)
@@ -66,10 +81,10 @@ public class CustomerService {
                 request.getDateOfBirth(),
                 request.getClassification());
 
-        // Build customer entity - userId from login-service, username from JWT
+        // Build customer entity - userId from login-service, username from JWT or login-service
         Customer customer = Customer.builder()
-                .userId(userId) // Use userId from login-service, not from request
-                .username(authenticatedUsername) // Store the authenticated username from JWT
+                .userId(userId) // Use userId from login-service or request (for public registration)
+                .username(username) // Store the username from JWT or login-service
                 .fullName(request.getFullName())
                 .mobileNumber(request.getMobileNumber())
                 .email(request.getEmail())
@@ -89,8 +104,8 @@ public class CustomerService {
                 .ifscCode(request.getIfscCode())
                 .preferredLanguage(request.getPreferredLanguage() != null ? request.getPreferredLanguage() : "en")
                 .preferredCurrency(request.getPreferredCurrency() != null ? request.getPreferredCurrency() : "INR")
-                .emailNotifications(request.getEmailNotifications() != null ? request.getEmailNotifications() : true)
-                .smsNotifications(request.getSmsNotifications() != null ? request.getSmsNotifications() : true)
+                .emailNotifications(request.getEmailNotifications() != null ? request.getEmailNotifications() : Boolean.TRUE)
+                .smsNotifications(request.getSmsNotifications() != null ? request.getSmsNotifications() : Boolean.TRUE)
                 .build();
 
         Customer savedCustomer = customerRepository.save(customer);
@@ -367,6 +382,29 @@ public class CustomerService {
     }
 
     /**
+     * Lab L4 Requirement: Get all customers (for ADMIN/CUSTOMER_MANAGER)
+     */
+    public List<CustomerResponse> getAllCustomers() {
+        log.info("Retrieving all customers");
+        List<Customer> customers = customerRepository.findAll();
+        return customers.stream()
+                .map(this::toCustomerResponse)
+                .toList();
+    }
+
+    /**
+     * Lab L4 Requirement: Get customer profile by username (for authenticated user's own profile)
+     */
+    public CustomerResponse getCustomerProfileByUsername(String username) {
+        log.info("Retrieving customer profile for username: {}", username);
+        Customer customer = customerRepository.findByUsername(username)
+                .orElseThrow(() -> new CustomerNotFoundException(
+                    "No customer profile found for user: " + username + 
+                    ". Please create a customer profile first."));
+        return toCustomerResponse(customer);
+    }
+
+    /**
      * Validate duplicate customer (checking mobile, email, PAN, Aadhar)
      * Note: userId is already checked in createCustomer method
      */
@@ -409,5 +447,12 @@ public class CustomerService {
         // For non-senior citizens, use requested classification
         log.debug("Using requested classification: {} (age: {})", requestedClassification, age);
         return requestedClassification;
+    }
+
+    /**
+     * Convert Customer entity to CustomerResponse DTO
+     */
+    private CustomerResponse toCustomerResponse(Customer customer) {
+        return CustomerResponse.fromEntity(customer);
     }
 }

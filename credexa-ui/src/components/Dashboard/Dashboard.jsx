@@ -29,6 +29,9 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      // Set empty data instead of failing completely
+      setCustomerData(null);
+      setAccounts([]);
     } finally {
       setLoading(false);
     }

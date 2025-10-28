@@ -22,10 +22,7 @@ public class LoginResponse {
     private Long userId;
     private String username;
     private String email;
-    private String mobileNumber;
     private Set<String> roles;
-    private String preferredLanguage;
-    private String preferredCurrency;
     private LocalDateTime loginTime;
     private Long expiresIn; // in milliseconds
 }

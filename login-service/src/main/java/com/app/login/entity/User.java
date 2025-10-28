@@ -40,9 +40,6 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "mobile_number", unique = true, length = 15)
-    private String mobileNumber;
-
     @Column(nullable = false)
     private boolean active = true;
 
@@ -55,17 +52,34 @@ public class User {
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
-    @Column(name = "preferred_language", length = 10)
-    private String preferredLanguage = "en";
+    // OAuth2/SSO Fields
+    @Column(name = "oauth2_provider", length = 50)
+    private String oauth2Provider; // "google", "microsoft", "github", etc.
 
-    @Column(name = "preferred_currency", length = 10)
-    private String preferredCurrency = "USD";
+    @Column(name = "oauth2_provider_id", length = 255)
+    private String oauth2ProviderId; // Unique ID from OAuth2 provider
 
+    @Builder.Default
+    @Column(name = "enabled")
+    private Boolean enabled = true;
+
+    @Builder.Default
+    @Column(name = "email_verified")
+    private Boolean emailVerified = false;
+
+    @Builder.Default
+    @Column(name = "account_non_locked")
+    private Boolean accountNonLocked = true;
+
+    @Column(name = "last_login_time")
+    private LocalDateTime lastLoginTime;
+
+    // Existing role and timestamp fields...
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
-        name = "user_roles",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     @Builder.Default
     private Set<Role> roles = new HashSet<>();

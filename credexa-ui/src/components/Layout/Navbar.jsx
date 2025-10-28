@@ -33,6 +33,12 @@ const Navbar = () => {
                   Dashboard
                 </Link>
                 <Link
+                  to="/customers"
+                  className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition"
+                >
+                  Customers
+                </Link>
+                <Link
                   to="/products"
                   className="text-white hover:text-gray-200 px-3 py-2 rounded-md text-sm font-medium transition"
                 >
@@ -81,12 +87,7 @@ const Navbar = () => {
                 >
                   Login
                 </Link>
-                <Link
-                  to="/register"
-                  className="bg-white text-primary-600 hover:bg-gray-100 px-4 py-2 rounded-md text-sm font-medium transition"
-                >
-                  Register
-                </Link>
+                {/* Register removed - Use Customer Creation page instead */}
               </div>
             )}
           </div>
